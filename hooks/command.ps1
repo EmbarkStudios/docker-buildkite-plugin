@@ -35,6 +35,8 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
     $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
 }
 
+$docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE
+
 $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
     echo "+++ Error: Can't use both a step level command and the command parameter of the plugin"
     exit 1
