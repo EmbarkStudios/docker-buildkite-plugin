@@ -61,12 +61,12 @@ if ($debug_mode) {
     echo "executing 'docker run $docker_args'"
 }
 
-docker run $docker_args
+docker.exe run $docker_args
 
-if (-not $?) {
-    echo "--- :docker: Failed '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
-    exit 1
+if ($LastExitCode -ne 0) {
+    echo "--- :docker: :hurtrealbad: Failed '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
+    exit $LastExitCode
+} else {
+    echo "--- :docker: :metal: Finished '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
+    exit 0
 }
-
-echo "--- :docker: Finished '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
-exit 0
