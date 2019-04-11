@@ -38,7 +38,11 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
 $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
     echo "+++ Error: Can't use both a step level command and the command parameter of the plugin"
     exit 1
-} else if ($env:BUILDKITE_COMMAND) { $env:BUILDKITE_COMMAND } else { $env:BUILDKITE_PLUGIN_DOCKER_COMMAND }
+} elseif ($env:BUILDKITE_COMMAND) {
+    $env:BUILDKITE_COMMAND
+} else {
+    $env:BUILDKITE_PLUGIN_DOCKER_COMMAND
+}
 
 $docker_args += @("cmd.exe", "/C")
 $display_cmd = @("cmd.exe", "/C")
