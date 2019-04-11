@@ -20,7 +20,7 @@ $docker_args += "-i"
 # Remove the container when it finishes
 $docker_args += "--rm"
 
-if (is_enabled($env:BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT, "on")) {
+if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT "on") {
     $work_dir = if ($env:BUILDKITE_PLUGIN_DOCKER_WORKDIR) { $env:BUILDKITE_PLUGIN_DOCKER_WORKDIR } else { "c:/workdir" }
     $docker_args += @("--volume", "$(Get-Location):$work_dir")
 }
