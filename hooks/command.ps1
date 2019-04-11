@@ -63,5 +63,10 @@ if ($debug_mode) {
 
 docker run $docker_args
 
+if (-not $?) {
+    echo "--- :docker: Failed '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
+    exit 1
+}
+
 echo "--- :docker: Finished '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
 exit 0
