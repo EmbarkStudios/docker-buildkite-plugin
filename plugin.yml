@@ -51,6 +51,10 @@ configuration:
       type: boolean
     init:
       type: boolean
+    docker-file:
+      type: string
+    ctx:
+      type: string
   required:
     - image
   additionalProperties: false

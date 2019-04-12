@@ -13,6 +13,31 @@ $debug_mode = if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_DEBUG "off") {
     $true
 } else { $false }
 
+if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CTX) {
+    $build_args = @("-t", $env:BUILDKITE_PLUGIN_DOCKER_IMAGE)
+
+    if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE) {
+        $build_args += @("-f", $env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE)
+    }
+
+    $build_args += if ($env:BUILDKITE_PLUGIN_DOCKER_CTX) { $env:BUILDKITE_PLUGIN_DOCKER_CTX } else { "." }
+
+    echo "--- :docker: Building :hammer: '$env:BUILDKITE_PLUGIN_DOCKER_IMAGE'"
+
+    if ($debug_mode) {
+        echo "executing 'docker build $build_args'"
+    }
+
+    docker.exe build $build_args
+
+    if ($LastExitCode -ne 0) {
+        echo "--- :docker: :hurtrealbad: Failed :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
+        exit $LastExitCode
+    } else {
+        echo "--- :docker: :metal: Finished :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
+    }
+}
+
 $docker_args = @()
 
 # Windows doesn't support TTY well, shocking!
