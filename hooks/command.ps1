@@ -61,7 +61,7 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
     $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
 }
 
-$cmd = @("cmd.exe", "/C")
+$cmd = @()
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # Get the path to the agent executable's directory on our host
@@ -87,13 +87,15 @@ $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
     $env:BUILDKITE_PLUGIN_DOCKER_COMMAND
 }
 
-$docker_args += $cmd
-$display_cmd += $cmd
+$prelude = @("cmd.exe", "/C")
 
-$cmds = $cmds -replace "`n", " && "
+$docker_args += $prelude
+$display_cmd += $prelude
 
-$docker_args += $cmds
-$display_cmd += $cmds
+$cmd += $cmds -replace "`n", " && "
+
+$docker_args += "$cmd"
+$display_cmd += "$cmd"
 
 echo "--- :docker: Running '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE"
 
