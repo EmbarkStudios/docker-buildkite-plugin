@@ -25,7 +25,7 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CT
     echo "--- :docker: Building :hammer: '$env:BUILDKITE_PLUGIN_DOCKER_IMAGE'"
 
     if ($debug_mode) {
-        echo "executing 'docker build $build_args'"
+        echo "executing 'docker build $build_args' in $(Get-Location)"
     }
 
     docker.exe build $build_args
