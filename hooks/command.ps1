@@ -8,8 +8,8 @@ function is_enabled {
 
 $debug_mode = if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_DEBUG "off") {
     # Use Write-Host here since echo is apparently an alias for Write-Output which introduces
-    # the string as a return value
-    Write-Host "--- :hammer: Enabling debug mode"
+    # the string as a return value to the function which is really weird, but whatever
+    Write-Host "--- :bug: Enabling debug mode"
     $true
 } else { $false }
 
@@ -68,7 +68,8 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # Pass the current environment vars needed for the agent to function correctly inside the container
     $docker_args += @("--env", "BUILDKITE_JOB_ID", "--env", "BUILDKITE_BUILD_ID", "--env", "BUILDKITE_AGENT_ACCESS_TOKEN")
     # Mount the agent so it can be used inside the container
-    $docker_args += @("--volume", "$bk_agent:c:/windows/system32/buildkite-agent.exe")
+    $container_loc = "c:/windows/system32/buildkite-agent.exe"
+    $docker_args += @("--volume", "$bk_agent:$container_loc")
 }
 
 $docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE
