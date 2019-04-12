@@ -61,6 +61,16 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
     $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
 }
 
+if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
+    # Get the path to the agent executable on our host
+    $bk_agent = gcm buildkite-agent | select -ExpandProperty Definition
+
+    # Pass the current environment vars needed for the agent to function correctly inside the container
+    $docker_args += @("--env", "BUILDKITE_JOB_ID", "--env", "BUILDKITE_BUILD_ID", "--env", "BUILDKITE_AGENT_ACCESS_TOKEN")
+    # Mount the agent so it can be used inside the container
+    $docker_args += @("--volume", "$bk_agent:c:/windows/system32/buildkite-agent.exe")
+}
+
 $docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE
 
 $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
