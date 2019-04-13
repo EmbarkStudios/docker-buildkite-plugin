@@ -61,6 +61,11 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
     $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
 }
 
+# Pass some of the host environment variables into the container
+$docker_args += @("--env", "BUILDKITE_BRANCH")
+$docker_args += @("--env", "BUILDKITE_COMMIT")
+$docker_args += @("--env", "BUILDKITE_MESSAGE")
+
 $cmd = @()
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
