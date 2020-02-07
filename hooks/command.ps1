@@ -77,7 +77,7 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # We can't actually mount only the agent binary in Windows https://github.com/moby/moby/issues/30555
     # so instead we mount the directory as ro and emit a command to update the PATH before
     # executing any other comamnds
-    $cmd += @("mklink", "c:`\windows`\system32`\buildkite-agent.exe", "c:`\bk-agent`\bin`\buildkite-agent.exe", " && ")
+    $cmd += @("mklink", "c:`\windows`\system32`\buildkite-agent.exe", "c:`\bk-agent`\buildkite-agent.exe", " && ")
     $docker_args += @("--volume", "${bk_dir}:c:/bk-agent:ro")
 }
 
