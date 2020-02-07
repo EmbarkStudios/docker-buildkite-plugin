@@ -65,6 +65,8 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
 $docker_args += @("--env", "BUILDKITE_BRANCH")
 $docker_args += @("--env", "BUILDKITE_COMMIT")
 $docker_args += @("--env", "BUILDKITE_MESSAGE")
+$docker_args += @("--env", "BUILDKITE_LABEL")
+$docker_args += @("--env", "CI")
 
 $cmd = @()
 
