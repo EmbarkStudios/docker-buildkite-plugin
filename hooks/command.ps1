@@ -41,7 +41,7 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CT
 $docker_args = @()
 
 # Windows doesn't support TTY well, shocking!
-$docker_args += "-t"
+$docker_args += "-i"
 # Remove the container when it finishes
 $docker_args += "--rm"
 
