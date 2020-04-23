@@ -68,6 +68,12 @@ $docker_args += @("--env", "BUILDKITE_MESSAGE")
 $docker_args += @("--env", "BUILDKITE_LABEL")
 $docker_args += @("--env", "CI")
 
+# Add any GIT_ environment variables
+$gits = gci env: | where name -like 'GIT_*'
+for ($i=0; $i -le $gits.Length; $i++) {
+    $docker_args += @("--env", $gits[$i].name)
+}
+
 $cmd = @()
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
