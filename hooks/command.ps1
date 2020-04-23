@@ -70,8 +70,8 @@ $docker_args += @("--env", "CI")
 
 # Add any GIT_ environment variables
 $gits = gci env: | where name -like 'GIT_*'
-for ($i=0; $i -le $gits.Length; $i++) {
-    $docker_args += @("--env", $gits[$i].name)
+foreach ($git in $gits) {
+    $docker_args += @("--env", $git.name)
 }
 
 $cmd = @()
