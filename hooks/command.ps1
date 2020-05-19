@@ -3,7 +3,7 @@ $ProgressPreference = 'SilentlyContinue'
 
 function is_enabled {
     $val = if ($args[0]) { $args[0] } else { $args[1] }
-    @("true","on","1").Contains($val)
+    @("true", "on", "1").Contains($val)
 }
 
 $debug_mode = if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_DEBUG "off") {
@@ -11,7 +11,8 @@ $debug_mode = if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_DEBUG "off") {
     # the string as a return value to the function which is really weird, but whatever
     Write-Host "--- :bug: Enabling debug mode"
     $true
-} else { $false }
+}
+else { $false }
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CTX) {
     $build_args = @("-t", $env:BUILDKITE_PLUGIN_DOCKER_IMAGE)
@@ -22,19 +23,20 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CT
 
     $build_args += if ($env:BUILDKITE_PLUGIN_DOCKER_CTX) { $env:BUILDKITE_PLUGIN_DOCKER_CTX } else { "." }
 
-    echo "--- :docker: Building :hammer: '$env:BUILDKITE_PLUGIN_DOCKER_IMAGE'"
+    Write-Host "--- :docker: Building :hammer: '$env:BUILDKITE_PLUGIN_DOCKER_IMAGE'"
 
     if ($debug_mode) {
-        echo "executing 'docker build $build_args' in $(Get-Location)"
+        Write-Host "executing 'docker build $build_args' in $(Get-Location)"
     }
 
     docker.exe build $build_args
 
     if ($LastExitCode -ne 0) {
-        echo "--- :docker: :hurtrealbad: Failed :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
+        Write-Host "--- :docker: :hurtrealbad: Failed :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
         exit $LastExitCode
-    } else {
-        echo "--- :docker: :metal: Finished :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
+    }
+    else {
+        Write-Host "--- :docker: :metal: Finished :hammer: $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
     }
 }
 
@@ -50,8 +52,6 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT "on") {
     $docker_args += @("--volume", "$(Get-Location):$work_dir")
     $docker_args += @("--workdir", $work_dir)
 }
-
-# TODO: Mount other volumes
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_USER) {
     $docker_args += @("-u", $env:BUILDKITE_PLUGIN_DOCKER_USER)
@@ -78,13 +78,11 @@ $cmd = @()
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # Get the path to the agent executable's directory on our host
-    $bk_dir = gcm buildkite-agent | select -exp Definition | split-path -Parent
+    $bk_dir = Get-ChildItem buildkite-agent | Select-Object -exp Definition | split-path -Parent
 
-    # Pass the current environment vars needed for the agent to function correctly inside the container
-    $docker_args += @("--env", "BUILDKITE_JOB_ID", "--env", "BUILDKITE_BUILD_ID", "--env", "BUILDKITE_AGENT_ACCESS_TOKEN")
     # We can't actually mount only the agent binary in Windows https://github.com/moby/moby/issues/30555
     # so instead we mount the directory as ro and emit a command to update the PATH before
-    # executing any other comamnds
+    # executing any other commands
     $cmd += @("mklink", "c:`\windows`\system32`\buildkite-agent.exe", "c:`\bk-agent`\buildkite-agent.exe", " && ")
     $docker_args += @("--volume", "${bk_dir}:c:/bk-agent:ro")
 }
@@ -92,11 +90,13 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
 $docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE
 
 $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
-    echo "+++ Error: Can't use both a step level command and the command parameter of the plugin"
+    Write-Host "+++ Error: Can't use both a step level command and the command parameter of the plugin"
     exit 1
-} elseif ($env:BUILDKITE_COMMAND) {
+}
+elseif ($env:BUILDKITE_COMMAND) {
     $env:BUILDKITE_COMMAND
-} else {
+}
+else {
     $env:BUILDKITE_PLUGIN_DOCKER_COMMAND
 }
 
@@ -110,18 +110,19 @@ $cmd += $cmds -replace "`n", " && "
 $docker_args += "$cmd"
 $display_cmd += "$cmd"
 
-echo "--- :docker: Running '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE"
+Write-Host "--- :docker: Running '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE"
 
 if ($debug_mode) {
-    echo "executing 'docker run $docker_args'"
+    Write-Host "executing 'docker run $docker_args'"
 }
 
 docker.exe run $docker_args
 
 if ($LastExitCode -ne 0) {
-    echo "--- :docker: :hurtrealbad: Failed '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
+    Write-Host "--- :docker: :hurtrealbad: Failed '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE!"
     exit $LastExitCode
-} else {
-    echo "--- :docker: :metal: Finished '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
+}
+else {
+    Write-Host "--- :docker: :metal: Finished '$display_cmd' in $env:BUILDKITE_PLUGIN_DOCKER_IMAGE successfully!"
     exit 0
 }
