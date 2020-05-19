@@ -78,7 +78,7 @@ $cmd = @()
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # Get the path to the agent executable's directory on our host
-    $bk_dir = Get-ChildItem buildkite-agent | Select-Object -exp Definition | split-path -Parent
+    $bk_dir = Get-Command buildkite-agent | Select-Object -exp Definition | split-path -Parent
 
     # We can't actually mount only the agent binary in Windows https://github.com/moby/moby/issues/30555
     # so instead we mount the directory as ro and emit a command to update the PATH before
