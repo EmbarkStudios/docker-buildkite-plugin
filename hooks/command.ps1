@@ -61,17 +61,17 @@ if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
     $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
 }
 
-# Pass some of the host environment variables into the container
-$docker_args += @("--env", "BUILDKITE_BRANCH")
-$docker_args += @("--env", "BUILDKITE_COMMIT")
-$docker_args += @("--env", "BUILDKITE_MESSAGE")
-$docker_args += @("--env", "BUILDKITE_LABEL")
-$docker_args += @("--env", "CI")
-
-# Add any GIT_ environment variables
-$gits = gci env: | where name -like 'GIT_*'
-foreach ($git in $gits) {
-    $docker_args += @("--env", $git.name)
+if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_PROPAGATE_ENVIRONMENT "off") {
+    if ($env:BUILDKITE_ENV_FILE) {
+        # Read in the env file and convert to --env params for docker
+        # This is because --env-file doesn't support newlines or quotes per https://docs.docker.com/compose/env-file/#syntax-rules
+        foreach ($line in Get-Content "$env:BUILDKITE_ENV_FILE") {
+            $docker_args += @("--env", $line)
+        }
+    }
+    else {
+        Write-Host "🚨 Not propagating environment variables to container as $env:BUILDKITE_ENV_FILE is not set"
+    }
 }
 
 $cmd = @()
