@@ -80,6 +80,9 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # Get the path to the agent executable's directory on our host
     $bk_dir = Get-Command buildkite-agent | Select-Object -exp Definition | split-path -Parent
 
+    # We need to pass the agent token to the container otherwise any usage of the agent will fail
+    $docker_args += @("--env", "BUILDKITE_AGENT_ACCESS_TOKEN")
+
     # We can't actually mount only the agent binary in Windows https://github.com/moby/moby/issues/30555
     # so instead we mount the directory as ro and emit a command to update the PATH before
     # executing any other commands
