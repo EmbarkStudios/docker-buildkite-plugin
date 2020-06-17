@@ -15,13 +15,13 @@ $debug_mode = if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_DEBUG "off") {
 else { $false }
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE -or $env:BUILDKITE_PLUGIN_DOCKER_CTX) {
-    $build_args = @("-t", $env:BUILDKITE_PLUGIN_DOCKER_IMAGE)
+    $build_args = @("-t", $env:BUILDKITE_PLUGIN_DOCKER_IMAGE.ToLower())
 
     if ($env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE) {
-        $build_args += @("-f", $env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE)
+        $build_args += @("-f", $env:BUILDKITE_PLUGIN_DOCKER_DOCKER_FILE.ToLower())
     }
 
-    $build_args += if ($env:BUILDKITE_PLUGIN_DOCKER_CTX) { $env:BUILDKITE_PLUGIN_DOCKER_CTX } else { "." }
+    $build_args += if ($env:BUILDKITE_PLUGIN_DOCKER_CTX) { $env:BUILDKITE_PLUGIN_DOCKER_CTX.ToLower() } else { "." }
 
     Write-Host "--- :docker: Building :hammer: '$env:BUILDKITE_PLUGIN_DOCKER_IMAGE'"
 
@@ -48,17 +48,18 @@ $docker_args += "-i"
 $docker_args += "--rm"
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT "on") {
-    $work_dir = if ($env:BUILDKITE_PLUGIN_DOCKER_WORKDIR) { $env:BUILDKITE_PLUGIN_DOCKER_WORKDIR } else { "c:/workdir" }
-    $docker_args += @("--volume", "$(Get-Location):$work_dir")
+    $work_dir = if ($env:BUILDKITE_PLUGIN_DOCKER_WORKDIR) { $env:BUILDKITE_PLUGIN_DOCKER_WORKDIR.ToLower() } else { "c:/workdir" }
+    $docker_args += @("--volume", "$(Get-Location):$work_dir".ToLower())
     $docker_args += @("--workdir", $work_dir)
 }
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_USER) {
+    # Needs ToLower?
     $docker_args += @("-u", $env:BUILDKITE_PLUGIN_DOCKER_USER)
 }
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT) {
-    $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT)
+    $docker_args += @("--entrypoint", $env:BUILDKITE_PLUGIN_DOCKER_ENTRYPOINT.ToLower())
 }
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_PROPAGATE_ENVIRONMENT "off") {
@@ -87,10 +88,10 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # so instead we mount the directory as ro and emit a command to update the PATH before
     # executing any other commands
     $cmd += @("mklink", "c:`\windows`\system32`\buildkite-agent.exe", "c:`\bk-agent`\buildkite-agent.exe", " && ")
-    $docker_args += @("--volume", "${bk_dir}:c:/bk-agent:ro")
+    $docker_args += @("--volume", "${bk_dir}:c:/bk-agent:ro".ToLower())
 }
 
-$docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE
+$docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE.ToLower()
 
 $cmds = if ($env:BUILDKITE_PLUGIN_DOCKER_COMMAND -and $env:BUILDKITE_COMMAND) {
     Write-Host "+++ Error: Can't use both a step level command and the command parameter of the plugin"
