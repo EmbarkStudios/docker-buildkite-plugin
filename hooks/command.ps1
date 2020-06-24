@@ -49,8 +49,8 @@ $docker_args += "--rm"
 
 if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT "on") {
     $work_dir = if ($env:BUILDKITE_PLUGIN_DOCKER_WORKDIR) { $env:BUILDKITE_PLUGIN_DOCKER_WORKDIR.ToLower() } else { "c:/workdir" }
-    $docker_args += @("--volume", "$(Get-Location):$work_dir".ToLower())
-    $docker_args += @("--workdir", $work_dir)
+    $docker_args += @("--volume", "`"$(Get-Location)`":`"$work_dir`"".ToLower())
+    $docker_args += @("--workdir", "`"$work_dir`"")
 }
 
 if ($env:BUILDKITE_PLUGIN_DOCKER_USER) {
@@ -88,7 +88,7 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_MOUNT_BUILDKITE_AGENT "on") {
     # so instead we mount the directory as ro and emit a command to update the PATH before
     # executing any other commands
     $cmd += @("mklink", "c:`\windows`\system32`\buildkite-agent.exe", "c:`\bk-agent`\buildkite-agent.exe", " && ")
-    $docker_args += @("--volume", "${bk_dir}:c:/bk-agent:ro".ToLower())
+    $docker_args += @("--volume", "`"${bk_dir}`":`"c:/bk-agent:ro`"".ToLower())
 }
 
 $docker_args += $env:BUILDKITE_PLUGIN_DOCKER_IMAGE.ToLower()
