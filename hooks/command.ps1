@@ -67,7 +67,10 @@ if (is_enabled $env:BUILDKITE_PLUGIN_DOCKER_PROPAGATE_ENVIRONMENT "off") {
         # Read in the env file and convert to --env params for docker
         # This is because --env-file doesn't support newlines or quotes per https://docs.docker.com/compose/env-file/#syntax-rules
         foreach ($line in Get-Content "$env:BUILDKITE_ENV_FILE") {
-            $docker_args += @("--env", $line)
+            # Skip the BUILDKITE_MESSAGE, as I'm pretty sure it screws with powershell
+            if(-Not $line.StartsWith('BUILDKITE_MESSAGE')) {
+                $docker_args += @("--env", $line)
+            }
         }
     }
     else {
